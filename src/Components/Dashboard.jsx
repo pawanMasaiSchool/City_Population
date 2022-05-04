@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deletingFromServer,
   gettingFromServer,
-  postingToServer
+  postingToServer,
+  sortingFilter
 } from "../Redux/City/action";
 
 function Dashboard() {
@@ -12,6 +13,8 @@ function Dashboard() {
   const [population, setPopulation] = useState("");
 
   const myData = useSelector((state) => state.dataFromAPI);
+  const isLoading = useSelector((state) => state.isLoading);
+  const isError = useSelector((state) => state.isError);
 
   const dispatch = useDispatch();
 
@@ -44,9 +47,28 @@ function Dashboard() {
     dispatch(postingAction);
   };
 
+  const handleFilterChange = (e) => {
+    if (e.target.value !== "null") {
+      const sorting = sortingFilter(e.target.value);
+      dispatch(sorting);
+    } else if (e.target.value === "null") {
+      const getDataFromAPI = gettingFromServer();
+      dispatch(getDataFromAPI);
+    }
+  };
+
   return (
     <div>
       <h1>Dashboard</h1>
+
+      <div style={{ float: "right", margin: "0px 100px" }}>
+        Population:
+        <select style={{ height: "30px" }} onChange={handleFilterChange}>
+          <option value={"null"}>None</option>
+          <option value="asc">Ascending Order</option>
+          <option value="DESC">Descending Order</option>
+        </select>
+      </div>
 
       <table border="4px solid red">
         <thead>
@@ -57,6 +79,7 @@ function Dashboard() {
           <td>Edit</td>
           <td>Delete</td>
         </thead>
+
         {myData.map((obj) => {
           return (
             <tr key={obj.id}>
@@ -72,17 +95,20 @@ function Dashboard() {
             </tr>
           );
         })}
+        {isLoading && <h2>...Loading</h2>}
+        {isError && <h2>...Error</h2>}
       </table>
       <br />
       <br />
       <div
         style={{
           padding: "8px",
-          border: "2px solid teal",
-          width: "500px",
+          border: "5px solid teal",
+          width: "300px",
           margin: "auto"
         }}
       >
+        <h1>Add New Data</h1>
         <form onSubmit={handleFormSubmit}>
           <label for="country">Country:</label>
           <input

@@ -18,6 +18,27 @@ const submitFailure = () => ({
   type: DETAILS_SUBMIT_FAILURE
 });
 
+const sortingFilter = (type) => async (dispatch) => {
+  try {
+    const submitAction = submitRequest();
+    dispatch(submitAction);
+    console.log("type of sort", type);
+    let response = await axios.get(
+      `https://country--city-population.herokuapp.com/cities?_sort=population&_order=${type}`
+    );
+    if (response.status === 200) {
+      const successAction = submitSuccess(response.data);
+      dispatch(successAction);
+    } else {
+      const failedAction = submitFailure();
+      dispatch(failedAction);
+    }
+  } catch (err) {
+    const failedAction = submitFailure();
+    dispatch(failedAction);
+  }
+};
+
 const deletingFromServer = (id) => async (dispatch) => {
   try {
     const submitAction = submitRequest();
@@ -27,7 +48,7 @@ const deletingFromServer = (id) => async (dispatch) => {
       `https://country--city-population.herokuapp.com/cities/${id}`
     );
     if (response.status === 200) {
-      alert("Deleted Successfully");
+      // alert("Deleted Successfully");
       const getDataFromAPI = gettingFromServer();
       dispatch(getDataFromAPI);
     } else {
@@ -50,7 +71,7 @@ const postingToServer = (details) => async (dispatch) => {
       details
     );
     if (response.status === 201) {
-      alert("Details Successfully Added");
+      // alert("Details Successfully Added");
       const getDataFromAPI = gettingFromServer();
       dispatch(getDataFromAPI);
     } else {
@@ -91,5 +112,6 @@ export {
   submitFailure,
   gettingFromServer,
   postingToServer,
-  deletingFromServer
+  deletingFromServer,
+  sortingFilter
 };
